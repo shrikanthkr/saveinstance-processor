@@ -3,6 +3,7 @@ package helpers;
 import android.os.Bundle;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -121,7 +122,7 @@ public class OwnerClass {
                 .addParameter(Bundle.class, OUTSTATE);
         method.addJavadoc("Total number of fields $L" , fields.size());
         if(hasSuper){
-            method.addCode("super.save($N);", OUTSTATE);
+            method.addStatement("super.save($N)", OUTSTATE);
         }
         Iterator<AnnotatedField> iterator = fields.iterator();
         while (iterator.hasNext()){
@@ -137,7 +138,7 @@ public class OwnerClass {
                 .addParameter(Bundle.class, OUTSTATE);
         method.addJavadoc("Total number of fields $L" , fields.size());
         if(hasSuper){
-            method.addCode("super.load($N);", OUTSTATE);
+            method.addStatement("super.load($N)", OUTSTATE);
         }
         Iterator<AnnotatedField> iterator = fields.iterator();
         while (iterator.hasNext()){
