@@ -39,9 +39,12 @@ public class OwnerClass {
     List<AnnotatedField> fields;
     Filer filer;
     String originalClassName;
-
+    private boolean hasSuper = false;
+    Element superTypeElement;
     private static final String SUFFIX = "$$Proxy";
     private static final String OUTSTATE = "outstate";
+    private static final String ANDROID_PREFIX = "android";
+
 
     public OwnerClass(Filer filer, Element classElement, Types typeUtils, Elements elementUtils) {
         this.filer = filer;
@@ -50,6 +53,13 @@ public class OwnerClass {
         this.typeUtils = typeUtils;
         this.elementUtils = elementUtils;
         this.originalClassName =  classElement.getSimpleName().toString();
+        for (TypeMirror supertype : typeUtils.directSupertypes(classElement.asType())) {
+            DeclaredType declared = (DeclaredType)supertype; //you should of course check this is possible first
+            superTypeElement = declared.asElement();
+            String superPackageName = elementUtils.getPackageOf(superTypeElement).getQualifiedName().toString();
+            hasSuper = !superPackageName.startsWith(ANDROID_PREFIX);
+            break;
+        }
     }
 
     public List<AnnotatedField> getFields() {
@@ -70,6 +80,11 @@ public class OwnerClass {
         buildConstructor(builder);
         buildSaveMethod(builder);
         buildLoadMethod(builder);
+        if(hasSuper){
+            TypeName superClassTypeName = ClassName.get(elementUtils.getPackageOf(superTypeElement).getQualifiedName().toString(),
+                    superTypeElement.getSimpleName().toString() + SUFFIX);
+            builder.superclass(superClassTypeName);
+        }
         TypeSpec typeSpec = builder.build();
         PackageElement packageElement = elementUtils.getPackageOf(classElement);
         try {
@@ -90,9 +105,13 @@ public class OwnerClass {
 
 
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
+        if(hasSuper){
+            constructor.addStatement("super("+fieldName+")");
+        }
         constructor.addModifiers(Modifier.PUBLIC);
         constructor.addParameter(typeName, fieldName);
         constructor.addStatement("this.$N = $N", fieldName, fieldName);
+
         builder.addMethod(constructor.build());
     }
 
@@ -101,6 +120,9 @@ public class OwnerClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Bundle.class, OUTSTATE);
         method.addJavadoc("Total number of fields $L" , fields.size());
+        if(hasSuper){
+            method.addCode("super.save($N);", OUTSTATE);
+        }
         Iterator<AnnotatedField> iterator = fields.iterator();
         while (iterator.hasNext()){
             AnnotatedField field = iterator.next();
@@ -114,6 +136,9 @@ public class OwnerClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Bundle.class, OUTSTATE);
         method.addJavadoc("Total number of fields $L" , fields.size());
+        if(hasSuper){
+            method.addCode("super.load($N);", OUTSTATE);
+        }
         Iterator<AnnotatedField> iterator = fields.iterator();
         while (iterator.hasNext()){
             AnnotatedField field = iterator.next();

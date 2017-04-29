@@ -1,5 +1,7 @@
 package generator;
 
+import android.os.Parcelable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +15,27 @@ public class Generator {
     static {
         generatorMap.put("int", IntGenerator.class);
         generatorMap.put("java.lang.Integer", IntGenerator.class);
+
         generatorMap.put("java.lang.String", StringGenerator.class);
+
         generatorMap.put("java.lang.Boolean", BooleanGenerator.class);
         generatorMap.put("boolean", BooleanGenerator.class);
+
+        generatorMap.put("java.lang.Byte", ByteGenerator.class);
+        generatorMap.put("byte", ByteGenerator.class);
+
+        generatorMap.put("java.lang.Character", CharGenerator.class);
+        generatorMap.put("char", CharGenerator.class);
+
+        generatorMap.put("java.lang.Short", ShortGenerator.class);
+        generatorMap.put("short", ShortGenerator.class);
+
+        generatorMap.put("float", FloatGenerator.class);
+        generatorMap.put("java.lang.Float", FloatGenerator.class);
+
+        generatorMap.put("java.lang.CharSequence", CharSequenceGenerator.class);
+        generatorMap.put("android.os.Parcelable", ParcelableGenerator.class);
+
     }
 
     public  static SaveLoadBaseGenerator getGenerator(String type){
