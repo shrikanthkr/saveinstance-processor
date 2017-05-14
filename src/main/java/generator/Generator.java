@@ -2,46 +2,30 @@ package generator;
 
 import android.os.Parcelable;
 
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+
+import helpers.AnnotatedField;
 
 /**
  * Created by shrikanth on 11/19/16.
  */
 
 public class Generator {
-    static Map<String, Class> generatorMap = new HashMap();
-    static {
-        generatorMap.put("int", IntGenerator.class);
-        generatorMap.put("java.lang.Integer", IntGenerator.class);
 
-        generatorMap.put("java.lang.String", StringGenerator.class);
-
-        generatorMap.put("java.lang.Boolean", BooleanGenerator.class);
-        generatorMap.put("boolean", BooleanGenerator.class);
-
-        generatorMap.put("java.lang.Byte", ByteGenerator.class);
-        generatorMap.put("byte", ByteGenerator.class);
-
-        generatorMap.put("java.lang.Character", CharGenerator.class);
-        generatorMap.put("char", CharGenerator.class);
-
-        generatorMap.put("java.lang.Short", ShortGenerator.class);
-        generatorMap.put("short", ShortGenerator.class);
-
-        generatorMap.put("float", FloatGenerator.class);
-        generatorMap.put("java.lang.Float", FloatGenerator.class);
-
-        generatorMap.put("java.lang.CharSequence", CharSequenceGenerator.class);
-        generatorMap.put("android.os.Parcelable", ParcelableGenerator.class);
-
-    }
-
-    public  static SaveLoadBaseGenerator getGenerator(String type){
-        Class generatorClass = generatorMap.get(type);
+    public  static SaveLoadBaseGenerator getGenerator(Elements elementUtils, Types typeUtils, AnnotatedField field){
+        Class generatorClass = getGeneratorClass(elementUtils, typeUtils, field);
         try {
-            return (SaveLoadBaseGenerator)generatorClass.getConstructor().newInstance();
+            Constructor constructor = generatorClass.getConstructor(AnnotatedField.class);
+            return (SaveLoadBaseGenerator)constructor.newInstance(field);
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -53,4 +37,66 @@ public class Generator {
         }
         return null;
     }
+
+    private static Class getGeneratorClass(Elements elementUtils, Types typeUtils, AnnotatedField field){
+        TypeMirror elementType = field.getElement().asType();
+        TypeMirror expectedType;
+
+        expectedType = elementUtils.getTypeElement(Integer.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return IntGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(String.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return StringGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Byte.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return ByteGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Boolean.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return BooleanGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Character.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return CharGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Short.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return ShortGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Float.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return FloatGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Double.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return DoubleGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(CharSequence.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return CharSequenceGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Serializable.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return SerializableGenerator.class;
+        }
+
+        expectedType = elementUtils.getTypeElement(Parcelable.class.getName()).asType();
+        if(typeUtils.isAssignable(elementType, expectedType)){
+            return ParcelableGenerator.class;
+        }
+        return null;
+    }
+
 }

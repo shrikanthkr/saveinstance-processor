@@ -3,6 +3,8 @@ package helpers;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 import generator.Generator;
 import generator.SaveLoadBaseGenerator;
@@ -21,11 +23,6 @@ public class AnnotatedField {
         this.element = element;
         enclosingClass = element.getEnclosingElement();
         fieldType = element.asType().toString();
-        try {
-            generator = Generator.getGenerator(fieldType);
-        }catch (NullPointerException e){
-
-        }
     }
 
     public Element getElement() {
@@ -50,5 +47,13 @@ public class AnnotatedField {
 
     public void setGenerator(SaveLoadBaseGenerator generator) {
         this.generator = generator;
+    }
+
+    public String getFieldType() {
+        return fieldType;
+    }
+
+    public void setFieldType(String fieldType) {
+        this.fieldType = fieldType;
     }
 }

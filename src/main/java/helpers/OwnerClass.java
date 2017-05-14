@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -151,8 +152,18 @@ public class OwnerClass {
     private void generateFieldSaveStatements(AnnotatedField field, MethodSpec.Builder method ){
         String className = StringUtils.uncapitalize(originalClassName);
         String fieldName = field.getElement().getSimpleName().toString();
+        if(field.getElement().asType() instanceof  DeclaredType) {
+            List<? extends TypeMirror> typeArguments = ((DeclaredType) field.getElement().asType()).getTypeArguments();
+            if(typeArguments != null){
+
+            }
+        }
         method.addStatement(field.getGenerator().generateWrite(OUTSTATE, fieldName, className + "." + fieldName));
 
+        TypeMirror type = field.getElement().asType();
+        if(type != null){
+
+        }
 
     }
 

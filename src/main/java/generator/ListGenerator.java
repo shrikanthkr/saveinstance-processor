@@ -6,9 +6,9 @@ import helpers.AnnotatedField;
  * Created by shrikanth on 11/19/16.
  */
 
-public class BooleanGenerator extends SaveLoadBaseGenerator {
+public class ListGenerator extends SaveLoadBaseGenerator {
 
-    public BooleanGenerator(AnnotatedField field) {
+    public ListGenerator(AnnotatedField field) {
         super(field);
     }
 

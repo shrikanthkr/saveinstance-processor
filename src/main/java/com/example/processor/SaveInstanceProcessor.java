@@ -32,6 +32,8 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import generator.Generator;
+import generator.SaveLoadBaseGenerator;
 import helpers.AnnotatedField;
 import helpers.OwnerClass;
 import helpers.ProcessingException;
@@ -65,6 +67,8 @@ public class SaveInstanceProcessor extends AbstractProcessor {
         for(Element element : roundEnvironment.getElementsAnnotatedWith(SaveInstance.class)){
             validateElement(element);
             AnnotatedField annotatedField = new AnnotatedField(element);
+            SaveLoadBaseGenerator generator = Generator.getGenerator(elementUtils, typeUtils, annotatedField);
+            annotatedField.setGenerator(generator);
             Element ownerElement = annotatedField.getEnclosingClass();
             OwnerClass ownerClass = ownerClassMap.get(element.getEnclosingElement());
             if(ownerClass == null){
